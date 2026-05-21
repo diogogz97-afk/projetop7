@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - ENV=production
+      - DEBUG=False
+      - FASTAPI_HOST=0.0.0.0
+      - FASTAPI_PORT=8000
+    volumes:
+      - ./backend:/app/backend
+      - ./database.db:/app/database.db
+    networks:
+      - dashboard-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8050:8050"
+    depends_on:
+      - backend
+    environment:
+      - ENV=production
+      - DASH_DEBUG=False
+      - DASH_HOST=0.0.0.0
+      - DASH_PORT=8050
+    volumes:
+      - ./frontend:/app/frontend
+    networks:
+      - dashboard-network
+    restart: unless-stopped
+
+networks:
+  dashboard-network:
+    driver: bridge
